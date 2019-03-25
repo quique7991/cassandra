@@ -206,7 +206,10 @@ public class OutboundMessagingConnection
 
             logger.trace("sending message {} at time [{}]",queuedMessage.id,queuedMessage.timestampNanos );
             if (channelWriter.write(queuedMessage, false))
+            {
+                logger.trace("Message {} successfuly send at time [{}]",queuedMessage.id,queuedMessage.timestampNanos );
                 return true;
+            }
 
             backlog.add(queuedMessage);
             return false;
