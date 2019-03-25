@@ -203,6 +203,8 @@ public class OutboundMessagingConnection
         State state = this.state.get();
         if (state == State.READY)
         {
+
+            logger.trace("sending message {} at time [{}]",queuedMessage.id,queuedMessage.timestampNanos );
             if (channelWriter.write(queuedMessage, false))
                 return true;
 
@@ -216,6 +218,7 @@ public class OutboundMessagingConnection
         }
         else
         {
+            logger.trace("backlogging message {} at time [{}]",queuedMessage.id,queuedMessage.timestampNanos );
             backlog.add(queuedMessage);
             connect();
             return true;
