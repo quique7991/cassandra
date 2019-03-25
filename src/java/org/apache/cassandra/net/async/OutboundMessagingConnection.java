@@ -204,13 +204,14 @@ public class OutboundMessagingConnection
         if (state == State.READY)
         {
 
-            logger.trace("sending message {} at time [{}]",queuedMessage.id,queuedMessage.timestampNanos );
+            logger.trace("sending message {} at time [{}]",queuedMessage.id,queuedMessage.timestampNanos/1000000 );
             if (channelWriter.write(queuedMessage, false))
             {
-                logger.trace("Message {} successfuly send at time [{}]",queuedMessage.id,queuedMessage.timestampNanos );
+                logger.trace("Message {} successfuly send at time [{}]",queuedMessage.id,queuedMessage.timestampNanos/1000000 );
                 return true;
             }
 
+            logger.trace("Something didn't work: backlogging message {} at time [{}]",queuedMessage.id,queuedMessage.timestampNanos/1000000);
             backlog.add(queuedMessage);
             return false;
         }
@@ -221,7 +222,6 @@ public class OutboundMessagingConnection
         }
         else
         {
-            logger.trace("backlogging message {} at time [{}]",queuedMessage.id,queuedMessage.timestampNanos );
             backlog.add(queuedMessage);
             connect();
             return true;

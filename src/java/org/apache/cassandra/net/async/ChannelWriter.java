@@ -28,6 +28,9 @@ import java.util.function.Consumer;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -135,6 +138,7 @@ abstract class ChannelWriter
      * as well. See the class-level documentation for more information.
      */
     static final AttributeKey<Boolean> PURGE_MESSAGES_CHANNEL_ATTR = AttributeKey.newInstance("purgeMessages");
+    static final Logger logger = LoggerFactory.getLogger(ChannelWriter.class);
 
     protected final Channel channel;
     private volatile boolean closed;
@@ -190,6 +194,7 @@ abstract class ChannelWriter
     {
         if ( (checkWritability && (channel.isWritable()) || !channel.isOpen()) || !checkWritability)
         {
+            logger.trace("Everything is ready to send message {} at time [{}]",message.id,message.timestampNanos/1000000 );
             write0(message).addListener(f -> handleMessageFuture(f, message, true));
             return true;
         }
@@ -204,8 +209,10 @@ abstract class ChannelWriter
     @VisibleForTesting
     void handleMessageFuture(Future<? super Void> future, QueuedMessage msg, boolean allowReconnect)
     {
+        logger.trace("Message {} is handled at time [{}]",msg.id,msg.timestampNanos/1000000 );
         messageResult.setAll(this, msg, future, allowReconnect);
         messageResultConsumer.accept(messageResult);
+        logger.trace("Message {} was accepted at time [{}]",msg.id,msg.timestampNanos/1000000 );
         messageResult.clearAll();
     }
 
