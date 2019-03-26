@@ -105,7 +105,9 @@ public class QueryMessage extends Message.Request
 
             long queryStartTime = auditLogManager.isLoggingEnabled() ? System.currentTimeMillis() : 0L;
 
+            logger.trace("Executing query {} in query message",query);
             Message.Response response = ClientState.getCQLQueryHandler().process(query, state, options, getCustomPayload(), queryStartNanoTime);
+            logger.trace("Query completed {} in query message",query);
 
             if (auditLogManager.isLoggingEnabled())
                 logSuccess(state, queryStartTime);

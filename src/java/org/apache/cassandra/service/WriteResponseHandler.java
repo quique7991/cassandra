@@ -53,8 +53,12 @@ public class WriteResponseHandler<T> extends AbstractWriteResponseHandler<T>
 
     public void response(MessageIn<T> m)
     {
+        logger.trace("Reponse received from {}",m.from);
         if (responsesUpdater.decrementAndGet(this) == 0)
+        {
+            logger.trace("Signaling for operation {}",m.verb);
             signal();
+        }
         //Must be last after all subclass processing
         //The two current subclasses both assume logResponseToIdealCLDelegate is called
         //here.

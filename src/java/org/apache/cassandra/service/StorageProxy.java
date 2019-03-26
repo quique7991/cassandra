@@ -618,7 +618,7 @@ public class StorageProxy implements StorageProxyMBean
         final String localDataCenter = DatabaseDescriptor.getEndpointSnitch().getLocalDatacenter();
 
         long startTime = System.nanoTime();
-
+        logger.trace("Mutation start time",startTime/1000000);
         List<AbstractWriteResponseHandler<IMutation>> responseHandlers = new ArrayList<>(mutations.size());
         WriteType plainWriteType = mutations.size() <= 1 ? WriteType.SIMPLE : WriteType.UNLOGGED_BATCH;
 
@@ -632,6 +632,8 @@ public class StorageProxy implements StorageProxyMBean
                     responseHandlers.add(performWrite(mutation, consistencyLevel, localDataCenter, standardWritePerformer, null, plainWriteType, queryStartNanoTime));
             }
 
+            logger.trace("After starting writes #{}",mutations.size());
+
             // upgrade to full quorum any failed cheap quorums
             for (int i = 0 ; i < mutations.size() ; ++i)
             {
@@ -642,6 +644,8 @@ public class StorageProxy implements StorageProxyMBean
             // wait for writes.  throws TimeoutException if necessary
             for (AbstractWriteResponseHandler<IMutation> responseHandler : responseHandlers)
                 responseHandler.get();
+
+            logger.trace("After receiving writes");
         }
         catch (WriteTimeoutException|WriteFailureException ex)
         {
@@ -1185,7 +1189,7 @@ public class StorageProxy implements StorageProxyMBean
         Map<String, Collection<Replica>> dcGroups = null;
         // only need to create a Message for non-local writes
         MessageOut<Mutation> message = null;
-
+        logger.trace("Send to hinted replicas");
         boolean insertLocal = false;
         Replica localReplica = null;
         Collection<Replica> endpointsToHint = null;

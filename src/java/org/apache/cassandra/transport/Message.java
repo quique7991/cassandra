@@ -222,6 +222,7 @@ public abstract class Message
 
         final Response execute(QueryState queryState, long queryStartNanoTime)
         {
+            logger.trace("Executing query at time [{}ms]",queryStartNanoTime/1000000);
             boolean shouldTrace = false;
             UUID tracingSessionId = null;
 
@@ -243,7 +244,10 @@ public abstract class Message
             Response response;
             try
             {
+
+                logger.trace("Starting execution of query time [{}ms]",queryStartNanoTime/1000000);
                 response = execute(queryState, queryStartNanoTime, shouldTrace);
+                logger.trace("Execution completed for  query time [{}ms]",queryStartNanoTime/1000000);
             }
             finally
             {
@@ -613,7 +617,9 @@ public abstract class Message
                 response.setStreamId(request.getStreamId());
                 response.setWarnings(ClientWarn.instance.getWarnings());
                 response.attach(connection);
+                logger.trace("Appying state transition for {}, v={}", request, connection.getVersion());
                 connection.applyStateTransition(request.type, response.type);
+                logger.trace("State transition applied for {}, v={}", request, connection.getVersion());
             }
             catch (Throwable t)
             {
