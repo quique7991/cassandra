@@ -632,7 +632,7 @@ public class StorageProxy implements StorageProxyMBean
                     responseHandlers.add(performWrite(mutation, consistencyLevel, localDataCenter, standardWritePerformer, null, plainWriteType, queryStartNanoTime));
             }
 
-            logger.trace("After starting writes #{}",mutations.size());
+            logger.trace("After starting writes #{}",(mutations==null)?"0":mutations.size());
 
             // upgrade to full quorum any failed cheap quorums
             for (int i = 0 ; i < mutations.size() ; ++i)
