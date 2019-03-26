@@ -690,6 +690,7 @@ public class StorageProxy implements StorageProxyMBean
         finally
         {
             long latency = System.nanoTime() - startTime;
+            logger.trace("Query took [{}ms]",latency/1000000);
             writeMetrics.addNano(latency);
             writeMetricsMap.get(consistencyLevel).addNano(latency);
             updateCoordinatorWriteLatencyTableMetric(mutations, latency);
