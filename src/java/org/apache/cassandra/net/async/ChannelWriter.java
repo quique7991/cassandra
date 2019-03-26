@@ -196,6 +196,7 @@ abstract class ChannelWriter
         {
             logger.trace("Everything is ready to send message {} at time [{}]",message.id,message.timestampNanos/1000000 );
             write0(message).addListener(f -> handleMessageFuture(f, message, true));
+            logger.trace("Everything was send message {} at time [{}]",message.id,message.timestampNanos/1000000 );
             return true;
         }
         return false;

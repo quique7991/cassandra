@@ -225,6 +225,7 @@ public class OutboundMessagingConnection
             logger.trace("Something didn't work: backlogging message {} at time [{}]",queuedMessage.id,queuedMessage.timestampNanos/1000000);
             backlog.add(queuedMessage);
             connect();
+            logger.trace("Completed connection: backlogging message {} at time [{}]",queuedMessage.id,queuedMessage.timestampNanos/1000000);
             return true;
         }
     }

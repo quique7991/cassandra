@@ -1054,9 +1054,13 @@ public final class MessagingService implements MessagingServiceMBean
                            AbstractWriteResponseHandler<?> handler,
                            boolean allowHints)
     {
+        logger.trace("Before write callback");
         int id = addWriteCallback(handler, message, to, message.getTimeout(), handler.consistencyLevel(), allowHints);
+        logger.trace("Before back pressure");
         updateBackPressureOnSend(to.endpoint(), handler, message);
+        logger.trace("Before sending one way");
         sendOneWay(message.withParameter(ParameterType.FAILURE_CALLBACK, ONE_BYTE), id, to.endpoint());
+        logger.trace("After sending one way");
         return id;
     }
 
@@ -1092,7 +1096,11 @@ public final class MessagingService implements MessagingServiceMBean
 
         OutboundMessagingPool outboundMessagingPool = getMessagingConnection(to);
         if (outboundMessagingPool != null)
+        {
+            logger.trace("Before outbound message pool send");
             outboundMessagingPool.sendMessage(message, id);
+            logger.trace("After outbound message pool send");
+        }
     }
 
     public <T> AsyncOneResponse<T> sendRR(MessageOut message, InetAddressAndPort to)

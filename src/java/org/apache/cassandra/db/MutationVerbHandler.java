@@ -19,6 +19,9 @@ package org.apache.cassandra.db;
 
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.cassandra.exceptions.WriteTimeoutException;
 import org.apache.cassandra.locator.InetAddressAndPort;
 import org.apache.cassandra.net.*;
@@ -26,10 +29,14 @@ import org.apache.cassandra.tracing.Tracing;
 
 public class MutationVerbHandler implements IVerbHandler<Mutation>
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(MutationVerbHandler.class);
     private void reply(int id, InetAddressAndPort replyTo)
     {
         Tracing.trace("Enqueuing response to {}", replyTo);
+        logger.trace("Begin of reply in mutation handler");
         MessagingService.instance().sendReply(WriteResponse.createMessage(), id, replyTo);
+        logger.trace("End of reply in mutation handler");
     }
 
     private void failed()
@@ -47,7 +54,11 @@ public class MutationVerbHandler implements IVerbHandler<Mutation>
             replyTo = message.from;
             ForwardToContainer forwardTo = (ForwardToContainer)message.parameters.get(ParameterType.FORWARD_TO);
             if (forwardTo != null)
+            {
+                logger.trace("Begin of forwading to local");
                 forwardToLocalNodes(message.payload, message.verb, forwardTo, message.from);
+                logger.trace("End of forwarding to local");
+            }
         }
         else
         {
@@ -57,10 +68,14 @@ public class MutationVerbHandler implements IVerbHandler<Mutation>
 
         try
         {
+
+            logger.trace("Begin of applying future in mutation handler");
             message.payload.applyFuture().thenAccept(o -> reply(id, replyTo)).exceptionally(wto -> {
                 failed();
                 return null;
             });
+
+            logger.trace("End of applying future in mutation handler");
         }
         catch (WriteTimeoutException wto)
         {
