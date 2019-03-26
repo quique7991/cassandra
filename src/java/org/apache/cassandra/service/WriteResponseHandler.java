@@ -53,7 +53,10 @@ public class WriteResponseHandler<T> extends AbstractWriteResponseHandler<T>
 
     public void response(MessageIn<T> m)
     {
-        logger.trace("Reponse received from {}",(m==null)?"":m.from);
+        if(m!=null)
+        {
+            logger.trace("Reponse received from {} for operation {} for message {}", m.from, m.payload, m);
+        }
         if (responsesUpdater.decrementAndGet(this) == 0)
         {
             logger.trace("Signaling for operation {}",(m==null)?"":m.verb);
