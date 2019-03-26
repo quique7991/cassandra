@@ -617,9 +617,9 @@ public abstract class Message
                 response.setStreamId(request.getStreamId());
                 response.setWarnings(ClientWarn.instance.getWarnings());
                 response.attach(connection);
-                logger.trace("Appying state transition for {}, v={}", request, connection.getVersion());
+                logger.trace("Appying state transition for {}, v={}", (request==null)?"":request, (connection==null)?"":connection.getVersion());
                 connection.applyStateTransition(request.type, response.type);
-                logger.trace("State transition applied for {}, v={}", request, connection.getVersion());
+                logger.trace("State transition applied for {}, v={}", (request==null)?"":request, (connection==null)?"":connection.getVersion());
             }
             catch (Throwable t)
             {
