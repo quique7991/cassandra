@@ -342,6 +342,7 @@ ChannelWriter
             {
                 logger.trace("Flushing on message processed");
                 ctx.flush();
+                logger.trace("Flushed");
             }
         }
 
