@@ -156,6 +156,7 @@ class MessageOutHandler extends ChannelDuplexHandler
             {
                 logger.trace("flushing buffer");
                 ctx.flush();
+                logger.trace("buffer flushed");
             }
         }
         catch(Exception e)
