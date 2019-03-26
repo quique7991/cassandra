@@ -128,6 +128,9 @@ class MessageOutHandler extends ChannelDuplexHandler
 
             QueuedMessage msg = (QueuedMessage) o;
 
+            logger.trace("Trying to write message out {} at time[{}] for message type {}",msg.id,msg.timestampNanos/1000000,
+                         (msg.message==null)?"":(msg.message.connectionType==null)?"":msg.message.connectionType.name());
+
             // frame size includes the magic and and other values *before* the actual serialized message.
             // note: don't even bother to check the compressed size (if compression is enabled for the channel),
             // cuz if it's this large already, we're probably screwed anyway
@@ -141,13 +144,19 @@ class MessageOutHandler extends ChannelDuplexHandler
             out = ctx.alloc().ioBuffer((int)currentFrameSize);
 
             captureTracingInfo(msg);
+             logger.trace("Serializing message {} at time[{}] for message type {}",msg.id,msg.timestampNanos/1000000,
+                         (msg.message==null)?"":(msg.message.connectionType==null)?"":msg.message.connectionType.name());
             serializeMessage(msg, out);
             ctx.write(out, promise);
+            logger.trace("message {} at time[{}] was written",msg.id,msg.timestampNanos/1000000);
 
             // check to see if we should flush based on buffered size
             ChannelOutboundBuffer outboundBuffer = ctx.channel().unsafe().outboundBuffer();
             if (outboundBuffer != null && outboundBuffer.totalPendingWriteBytes() >= flushSizeThreshold)
+            {
+                logger.trace("flushing buffer");
                 ctx.flush();
+            }
         }
         catch(Exception e)
         {

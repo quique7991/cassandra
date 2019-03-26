@@ -131,7 +131,8 @@ import org.apache.cassandra.utils.CoalescingStrategies.CoalescingStrategy;
  * currently in the queue, thus defeating an aspect of coalescing. Hence, we're not using that feature of netty.
  * [2]: The netty event loop is also woken up by it's internal timeout on the epoll_wait() system call.
  */
-abstract class ChannelWriter
+abstract class
+ChannelWriter
 {
     /**
      * A netty channel {@link Attribute} to indicate, when a channel is closed, any backlogged messages should be purged,
@@ -336,12 +337,17 @@ abstract class ChannelWriter
 
         void onMessageProcessed(ChannelHandlerContext ctx)
         {
+            logger.trace("Message was processed");
             if (pendingMessageCount.decrementAndGet() == 0)
+            {
+                logger.trace("Flushing on message processed");
                 ctx.flush();
+            }
         }
 
         void onTriggeredFlush(ChannelHandlerContext ctx)
         {
+            logger.trace("Triggered flush");
             // Don't actually flush on "normal" flush calls to the channel.
         }
     }
